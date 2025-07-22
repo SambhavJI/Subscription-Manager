@@ -1,5 +1,5 @@
 const subscription = require("../models/subscription");
-const Subscription = require("../models/subscription");
+const validateData = require("../utils/validator")
 
 const addSub = async (req, res) => {
   try {
@@ -23,7 +23,7 @@ const addSub = async (req, res) => {
 
     const nextBillingDate = date;
 
-    const sub = new Subscription({
+    const sub = new subscription({
       userId,
       subName,
       category,
@@ -40,4 +40,53 @@ const addSub = async (req, res) => {
     res.status(400).send("Could Not Add the Subscription: " + err.message);
   }
 };
-module.exports = addSub
+const removeSub = async (req,res)=>{
+  try{
+  const user = req.user._id;
+
+  const {subId} = req.params;
+  if(!subId){
+    return res.status(400).send("Please provide a subsciption to remove");
+  }
+  const sub = await subscription.findOne({_id:subId,userId:user});
+  if(!sub){
+    return res.status(404).send("Not an existing subsctiption")
+  }
+
+  await subscription.findOneAndDelete({_id:subId,userId:user});
+  res.send("Subscription removed succesfully");
+
+  }catch(err){
+    res.status(400).send("ERROR: "+ err.message);
+  }
+
+}
+
+const updateSub = async (req, res) => {
+  try {
+    const { subId } = req.params;
+    const user = req.user;
+
+    const sub = await subscription.findOne({ _id: subId, userId: user._id });
+
+    if (!sub) {
+      return res.status(404).send("Subscription not found or not owned by user");
+    }
+
+    if (!validateData(req)) {
+      return res.status(400).send("Invalid update fields");
+    }
+
+    Object.keys(req.body).forEach((key) => {
+      sub[key] = req.body[key];
+    });
+
+    await sub.save();
+    res.send(`${user.firstName}'s subscription updated successfully:\n${JSON.stringify(sub)}`);
+  } catch (err) {
+    res.status(500).send("ERROR: " + err.message);
+  }
+};
+
+
+module.exports = {addSub,removeSub,updateSub}

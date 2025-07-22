@@ -9,6 +9,7 @@ const subscriptionSchema = new mongoose.Schema({
   subName: {
     type: String,
     required: true,
+    unique:true,
     maxLength: 50
   },
   category: {
