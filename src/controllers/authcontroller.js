@@ -3,6 +3,7 @@ const User = require("../models/User.js");
 const jwt = require("jsonwebtoken");
 require("dotenv").config();
 const validator = require("validator");
+const sendMail = require("../utils/mail.js")
 
 const registerUser = async (req, res) => {
   try {
@@ -21,6 +22,24 @@ const registerUser = async (req, res) => {
     });
 
     await user.save();
+    const to = user.emailId;
+    const subject = "Welcome to Subscription Tracker 🎉"
+    const text = `Hi ${user.firstName},
+
+Welcome to Subscription Tracker — we're excited to have you on board!
+
+With our platform, you can:
+✅ Track all your subscriptions in one place  
+📆 Get notified before your next billing date  
+💰 Stay on top of your expenses
+
+You're all set to start managing your subscriptions smarter and easier.
+
+If you ever need help, feel free to reply to this email — we're here for you!
+
+Cheers,  
+The Subscription Tracker Team`
+await sendMail(to,subject,text);
     res.status(201).send("User Added Successfully");
   } catch (err) {
     console.error("An error occurred...");
@@ -63,9 +82,9 @@ const loginUser = async (req, res) => {
     res.status(400).json({ error: "Unable to login: " + err.message });
   }
 };
-const logout = async(req,res)=>{
-  res.cookie("token",null,{
-    expires:new Date(Date.now())
+const logout = async (req, res) => {
+  res.cookie("token", null, {
+    expires: new Date(Date.now())
   }).send("Logged Out Successfully")
 }
 
