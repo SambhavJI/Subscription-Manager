@@ -88,5 +88,16 @@ const updateSub = async (req, res) => {
   }
 };
 
+const getAllSub = async (req, res) => {
+  try {
+    const userId = req.user._id;
 
-module.exports = {addSub,removeSub,updateSub}
+    const allSub = await subscription.find({ userId }).lean();
+
+    res.status(200).json(allSub);
+  } catch (err) {
+    res.status(400).send("ERROR: " + err.message);
+  }
+};
+
+module.exports = {addSub,removeSub,updateSub,getAllSub}

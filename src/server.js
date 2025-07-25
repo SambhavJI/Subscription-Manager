@@ -1,6 +1,6 @@
 const express = require("express")
 const { registerUser, loginUser, logout } = require("./controllers/authcontroller")
-const {addSub,removeSub,updateSub}  = require("./controllers/subscriptionController")
+const {addSub,removeSub,updateSub,getAllSub}  = require("./controllers/subscriptionController")
 const userAuth = require("./middleware/auth")
 require("dotenv").config()
 const connectDB = require("./config/database")
@@ -17,6 +17,7 @@ app.post("/logout", logout);
 app.post("/Add",userAuth,addSub)
 app.post("/remove/:subId",userAuth,removeSub)
 app.patch("/update/:subId",userAuth,updateSub)
+app.get("/allSubscription",userAuth,getAllSub)
 
 connectDB()
   .then(() => {
